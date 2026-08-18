@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>六四事件互动讲述</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    background: #f5f5f0;
+    color: #222;
+    line-height: 1.7;
+    padding-bottom: 80px;
+  }
+  .topbar {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar h1 { font-size: 1.2rem; font-weight: 600; }
+  .lang-switch { display: flex; gap: 8px; }
+  .lang-btn {
+    background: #333;
+    color: #fff;
+    border: 1px solid #555;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .lang-btn.active {
+    background: #c45c26;
+    border-color: #c45c26;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 16px 20px;
+  }
+  .nav-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+  }
+  .tab-btn {
+    background: #e8e4d9;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #333;
+  }
+  .tab-btn.active {
+    background: #c45c26;
+    color: #fff;
+  }
+  .section {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .section.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  h2 {
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+    color: #1a1a1a;
+    border-left: 4px solid #c45c26;
+    padding-left: 12px;
+  }
+  h3 {
+    font-size: 1.1rem;
+    margin: 20px 0 10px;
+    color: #333;
+  }
+  p { margin-bottom: 14px; }
+  .card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+  }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #c45c26;
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 22px;
+  }
+  .tl-item::before {
+    content: "";
+    position: absolute;
+    left: -24px;
+    top: 6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #c45c26;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #c45c26;
+  }
+  .tl-date {
+    font-weight: 600;
+    color: #c45c26;
+    margin-bottom: 4px;
+  }
+  .note {
+    background: #f8f4e8;
+    border-left: 3px solid #b08d57;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 0.92rem;
+  }
+  .source {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 24px;
+    padding-top: 12px;
+    border-top: 1px solid #ddd;
+  }
+  ul { padding-left: 22px; margin-bottom: 14px; }
+  li { margin-bottom: 6px; }
+  .audio-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #1a1a1a;
+    color: #fff;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 200;
+    font-size: 0.9rem;
+  }
+  .audio-bar button {
+    background: #c45c26;
+    border: none;
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .audio-bar .info { flex: 1; }
+  .audio-bar input[type="range"] { width: 80px; }
+  .board-box {
+    background: #fff;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-top: 30px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .board-box h2 { margin-bottom: 12px; }
+  .board-input {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    resize: vertical;
+    margin-bottom: 10px;
+  }
+  .board-btn {
+    background: #c45c26;
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  .board-list {
+    margin-top: 16px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  .board-item {
+    background: #f8f4e8;
+    border-left: 3px solid #c45c26;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    border-radius: 0 4px 4px 0;
+    word-break: break-all;
+  }
+  .board-item .time {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 4px;
+  }
+  .board-empty {
+    color: #999;
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <h1 data-s="六四事件 互动讲述" data-t="六四事件 互動講述">六四事件 互动讲述</h1>
+    <div class="lang-switch">
+      <button class="lang-btn active" onclick="setLang('s')">简体</button>
+      <button class="lang-btn" onclick="setLang('t')">繁體</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="showSection('preface')">前言</button>
+      <button class="tab-btn" onclick="showSection('cause')">起因</button>
+      <button class="tab-btn" onclick="showSection('process')">经过</button>
+      <button class="tab-btn" onclick="showSection('result')">结果</button>
+      <button class="tab-btn" onclick="showSection('after')">事后处理</button>
+      <button class="tab-btn" onclick="showSection('eval')">程度评价</button>
+    </div>
+
+    <!-- 前言 -->
+    <div id="preface" class="section active">
+      <h2 data-s="前言" data-t="前言">前言</h2>
+      <div class="card">
+        <p data-s="六四事件，又称八九民运、八九学运或天安门事件。中国大陆官方称其为“一九八九年春夏之交的政治风波”或“反革命暴乱”。广义上指一九八九年四月中旬起，由高校学生发起、持续近两个月、波及全国四百余个城市的示威活动；狭义上主要指六月三日晚至四日凌晨，军队在北京进行的清场行动。" data-t="六四事件，又稱八九民運、八九學運或天安門事件。中國大陸官方稱其為「一九八九年春夏之交的政治風波」或「反革命暴亂」。廣義上指一九八九年四月中旬起，由高校學生發起、持續近兩個月、波及全國四百餘個城市的示威活動；狹義上主要指六月三日晚至四日凌晨，軍隊在北京進行的清場行動。">六四事件，又称八九民运、八九学运或天安门事件。中国大陆官方称其为“一九八九年春夏之交的政治风波”或“反革命暴乱”。广义上指一九八九年四月中旬起，由高校学生发起、持续近两个月、波及全国四百余个城市的示威活动；狭义上主要指六月三日晚至四日凌晨，军队在北京进行的清场行动。</p>
+        <p data-s="这场运动以悼念前中共中央总书记胡耀邦为起点，后来演变成要求反腐败、新闻自由、政治改革的大规模请愿。参与者主要是学生，后期有工人、市民加入。最终政府宣布戒严并用武力清场。" data-t="這場運動以悼念前中共中央總書記胡耀邦為起點，後來演變成要求反腐敗、新聞自由、政治改革的大規模請願。參與者主要是學生，後期有工人、市民加入。最終政府宣佈戒嚴並用武力清場。">这场运动以悼念前中共中央总书记胡耀邦为起点，后来演变成要求反腐败、新闻自由、政治改革的大规模请愿。参与者主要是学生，后期有工人、市民加入。最终政府宣布戒严并用武力清场。</p>
+        <p data-s="关于伤亡人数，官方公布数字与民间、境外估计差异较大。官方称死亡约二百四十一人（含军人），独立估计多在数百至两千余人之间。广场本身是否发生大规模屠杀，当事人说法也不完全一致。本页按时间顺序整理公开资料，尽量呈现多方记录。" data-t="關於傷亡人數，官方公佈數字與民間、境外估計差異較大。官方稱死亡約二百四十一人（含軍人），獨立估計多在數百至兩千餘人區間。廣場本身是否發生大規模屠殺，當事人說法也不完全一致。本頁按時間順序整理公開資料，儘量呈現多方記錄。">关于伤亡人数，官方公布数字与民间、境外估计差异较大。官方称死亡约二百四十一人（含军人），独立估计多在数百至两千余人之间。广场本身是否发生大规模屠杀，当事人说法也不完全一致。本页按时间顺序整理公开资料，尽量呈现多方记录。</p>
+      </div>
+    </div>
+
+    <!-- 起因 -->
+    <div id="cause" class="section">
+      <h2 data-s="起因" data-t="起因">起因</h2>
+      <div class="card">
+        <h3 data-s="直接导火索" data-t="直接導火索">直接导火索</h3>
+        <p data-s="一九八九年四月十五日，前中共中央总书记胡耀邦因心脏病去世。胡耀邦在一九八零至一九八七年担任总书记期间，推动过一些政治开放措施，一九八七年因被指对学潮处理不力而辞职。他的去世让许多学生和知识分子感到惋惜，悼念活动很快带上政治色彩。" data-t="一九八九年四月十五日，前中共中央總書記胡耀邦因心臟病去世。胡耀邦在一九八零至一九八七年擔任總書記期間，推動過一些政治開放措施，一九八七年因被指對學潮處理不力而辭職。他的去世讓許多學生和知識分子感到惋惜，悼念活動很快帶上政治色彩。">一九八九年四月十五日，前中共中央总书记胡耀邦因心脏病去世。胡耀邦在一九八零至一九八七年担任总书记期间，推动过一些政治开放措施，一九八七年因被指对学潮处理不力而辞职。他的去世让许多学生和知识分子感到惋惜，悼念活动很快带上政治色彩。</p>
+      </div>
+      <div class="card">
+        <h3 data-s="深层背景" data-t="深層背景">深层背景</h3>
+        <ul>
+          <li data-s="经济方面：改革开放后物价上涨明显，一九八八年通胀接近百分之三十，城市居民购买力下降，出现抢购。" data-t="經濟方面：改革開放後物價上漲明顯，一九八八年通脹接近百分之三十，城市居民購買力下降，出現搶購。">经济方面：改革开放后物价上涨明显，一九八八年通胀接近百分之三十，城市居民购买力下降，出现抢购。</li>
+          <li data-s="腐败问题：官倒、特权现象引发不满，学生和市民要求清理贪腐。" data-t="腐敗問題：官倒、特權現象引發不滿，學生和市民要求清理貪腐。">腐败问题：官倒、特权现象引发不满，学生和市民要求清理贪腐。</li>
+          <li data-s="政治期望：部分人希望在经济改革之外推进新闻自由、言论自由和政治体制改革。" data-t="政治期望：部分人希望在經濟改革之外推進新聞自由、言論自由和政治體制改革。">政治期望：部分人希望在经济改革之外推进新闻自由、言论自由和政治体制改革。</li>
+          <li data-s="外部影响：东欧变动和苏联改革给部分人带来民主化预期。" data-t="外部影響：東歐變動和蘇聯改革給部分人帶來民主化預期。">外部影响：东欧变动和苏联改革给部分人带来民主化预期。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 data-s="学生早期诉求" data-t="學生早期訴求">学生早期诉求</h3>
+        <p data-s="四月十八日前后，学生向全国人大提出七项要求，主要内容包括：重新评价胡耀邦、新闻自由、增加教育经费、反对官倒、公布领导人收入等。这些诉求后来被概括为反腐败、要民主、要自由。" data-t="四月十八日前後，學生向全國人大提出七項要求，主要內容包括：重新評價胡耀邦、新聞自由、增加教育經費、反對官倒、公佈領導人收入等。這些訴求後來被概括為反腐敗、要民主、要自由。">四月十八日前后，学生向全国人大提出七项要求，主要内容包括：重新评价胡耀邦、新闻自由、增加教育经费、反对官倒、公布领导人收入等。这些诉求后来被概括为反腐败、要民主、要自由。</p>
+      </div>
+    </div>
+
+    <!-- 经过 -->
+    <div id="process" class="section">
+      <h2 data-s="经过" data-t="經過">经过</h2>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-date" data-s="四月十五日至二十二日" data-t="四月十五日至二十二日">四月十五日至二十二日</div>
+          <p data-s="胡耀邦去世后，北京高校学生到天安门广场献花圈、贴大字报。悼念迅速扩大，其他城市也出现类似活动。四月二十二日胡耀邦追悼会上，学生提出对话要求。" data-t="胡耀邦去世後，北京高校學生到天安門廣場獻花圈、貼大字報。悼念迅速擴大，其他城市也出現類似活動。四月二十二日胡耀邦追悼會上，學生提出對話要求。">胡耀邦去世后，北京高校学生到天安门广场献花圈、贴大字报。悼念迅速扩大，其他城市也出现类似活动。四月二十二日胡耀邦追悼会上，学生提出对话要求。</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date" data-s="四月二十六日" data-t="四月二十六日">四月二十六日</div>
+          <p data-s="《人民日报》发表社论《必须旗帜鲜明地反对动乱》，把运动定性为“动乱”。社论激化对立，学生随后组织更大规模游行。" data-t="《人民日報》發表社論《必須旗幟鮮明地反對動亂》，把運動定性為「動亂」。社論激化對立，學生隨後組織更大規模遊行。">《人民日报》发表社论《必须旗帜鲜明地反对动乱》，把运动定性为“动乱”。社论激化对立，学生随后组织更大规模游行。</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date" data-s="五月四日前后" data-t="五月四日前後">五月四日前后</div>
+          <p data-s="纪念五四运动七十周年，多地学生游行。运动从校园走向社会，工人和市民开始参与。" data-t="紀念五四運動七十周年，多地學生遊行。運動從校園走向社會，工人和市民開始參與。">纪念五四运动七十周年，多地学生游行。运动从校园走向社会，工人和市民开始参与。</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date" data-s="五月十三日起" data-t="五月十三日起">五月十三日起</div>
+          <p data-s="部分学生在天安门广场开始绝食，要求政府对话并重新定性运动。绝食引起广泛同情，五月十六日至十八日北京出现大规模声援游行，人数达到数十万至上百万人。" data-t="部分學生在天安門廣場開始絕食，要求政府對話並重新定性運動。絕食引起廣泛同情，五月十六日至十八日北京出現大規模聲援遊行，人數達到數十萬至上百萬人。">部分学生在天安门广场开始绝食，要求政府对话并重新定性运动。绝食引起广泛同情，五月十六日至十八日北京出现大规模声援游行，人数达到数十万至上百万人。</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date" data-s="五月十九日至二十日" data-t="五月十九日至二十日">五月十九日至二十日</div>
+          <p data-s="五月十九日凌晨，时任总书记赵紫阳到广场劝学生停止绝食，这是他最后一次公开露面。随后中央决定实行戒严。五月二十日，国务院总理李鹏宣布北京市部分地区戒严。部队进城途中被市民拦阻，未能立即进入广场。" data-t="五月十九日凌晨，時任總書記趙紫陽到廣場勸學生停止絕食，這是他最後一次公開露面。隨後中央決定實行戒嚴。五月二十日，國務院總理李鵬宣佈北京市部分地區戒嚴。部隊進城途中被市民攔阻，未能立即進入廣場。">五月十九日凌晨，时任总书记赵紫阳到广场劝学生停止绝食，这是他最后一次公开露面。随后中央决定实行戒严。五月二十日，国务院总理李鹏宣布北京市部分地区戒严。部队进城途中被市民拦阻，未能立即进入广场。</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date" data-s="五月下旬" data-t="五月下旬">五月下旬</div>
+          <p data-s="广场上学生继续占领，并竖起民主女神像。部分人开始疲惫，人数有所下降。高层内部对是否强硬处理存在分歧，最终强硬派占上风。" data-t="廣場上學生繼續佔領，並豎起民主女神像。部分人開始疲憊，人數有所下降。高層內部對是否強硬處理存在分歧，最終強硬派占上風。">广场上学生继续占领，并竖起民主女神像。部分人开始疲惫，人数有所下降。高层内部对是否强硬处理存在分歧，最终强硬派占上风。</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date" data-s="六月三日晚至四日凌晨" data-t="六月三日晚至四日凌晨">六月三日晚至四日凌晨</div>
+          <p data-s="戒严部队从多个方向向天安门广场推进。途中与市民发生冲突，部分路段出现开枪。木樨地等地伤亡较多。六月四日凌晨，部队控制广场周边，宣布清场。广场内多数学生在劝说后撤离。关于广场内是否发生大规模直接屠杀，现场当事人说法不一：有人强调主要冲突在通往广场的街道，也有人描述广场内有伤亡。" data-t="戒嚴部隊從多個方向向天安門廣場推進。途中與市民發生衝突，部分路段出現開槍。木樨地等地傷亡較多。六月四日凌晨，部隊控制廣場周邊，宣佈清場。廣場內多數學生在勸說後撤離。關於廣場內是否發生大規模直接屠殺，現場當事人說法不一：有人強調主要衝突在通往廣場的街道，也有人描述廣場內有傷亡。">戒严部队从多个方向向天安门广场推进。途中与市民发生冲突，部分路段出现开枪。木樨地等地伤亡较多。六月四日凌晨，部队控制广场周边，宣布清场。广场内多数学生在劝说后撤离。关于广场内是否发生大规模直接屠杀，现场当事人说法不一：有人强调主要冲突在通往广场的街道，也有人描述广场内有伤亡。</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date" data-s="六月五日" data-t="六月五日">六月五日</div>
+          <p data-s="一名男子在长安街独自拦在一队坦克前，这一画面被拍下后传遍世界，被称为“坦克人”。" data-t="一名男子在長安街獨自攔在一隊坦克前，這一畫面被拍下後傳遍世界，被稱為「坦克人」。">一名男子在长安街独自拦在一队坦克前，这一画面被拍下后传遍世界，被称为“坦克人”。</p>
+        </div>
+      </div>
+      <div class="note">
+        <p data-s="说明：清场过程中军队与民众发生激烈冲突，双方均有伤亡。官方统计与境外媒体、红十字会等机构数字差异明显。具体死亡人数至今没有各方一致认可的精确名单。" data-t="說明：清場過程中軍隊與民眾發生激烈衝突，雙方均有傷亡。官方統計與境外媒體、紅十字會等機構數字差異明顯。具體死亡人數至今沒有各方一致認可的精確名單。">说明：清场过程中军队与民众发生激烈冲突，双方均有伤亡。官方统计与境外媒体、红十字会等机构数字差异明显。具体死亡人数至今没有各方一致认可的精确名单。</p>
+      </div>
+    </div>
+
+    <!-- 结果 -->
+    <div id="result" class="section">
+      <h2 data-s="结果" data-t="結果">结果</h2>
+      <div class="card">
+        <h3 data-s="政治层面" data-t="政治層面">政治层面</h3>
+        <ul>
+          <li data-s="赵紫阳被免去总书记等职务，软禁直至去世。江泽民接任总书记。" data-t="趙紫陽被免去總書記等職務，軟禁直至去世。江澤民接任總書記。">赵紫阳被免去总书记等职务，软禁直至去世。江泽民接任总书记。</li>
+          <li data-s="政治体制改革明显放缓，对媒体和言论的管控加强。" data-t="政治體制改革明顯放緩，對媒體和言論的管控加強。">政治体制改革明显放缓，对媒体和言论的管控加强。</li>
+          <li data-s="大批参与者被调查、逮捕或流亡海外。部分学生领袖被通缉。" data-t="大批參與者被調查、逮捕或流亡海外。部分學生領袖被通緝。">大批参与者被调查、逮捕或流亡海外。部分学生领袖被通缉。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 data-s="经济与外交" data-t="經濟與外交">经济与外交</h3>
+        <ul>
+          <li data-s="西方多国实施制裁和武器禁运，中国对外关系短期受影响。" data-t="西方多國實施制裁和武器禁運，中國對外關係短期受影響。">西方多国实施制裁和武器禁运，中国对外关系短期受影响。</li>
+          <li data-s="国内经济改革一度放缓，一九九二年邓小平南方谈话后重新加速。" data-t="國內經濟改革一度放緩，一九九二年鄧小平南方談話後重新加速。">国内经济改革一度放缓，一九九二年邓小平南方谈话后重新加速。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 data-s="社会记忆" data-t="社會記憶">社会记忆</h3>
+        <p data-s="在中国大陆，相关讨论长期受到严格限制，公开纪念活动基本无法进行。境外和海外华人群体每年有纪念活动。不同立场对事件性质、伤亡规模和历史评价存在持续分歧。" data-t="在中國大陸，相關討論長期受到嚴格限制，公開紀念活動基本無法進行。境外和海外華人群體每年有紀念活動。不同立場對事件性質、傷亡規模和歷史評價存在持續分歧。">在中国大陆，相关讨论长期受到严格限制，公开纪念活动基本无法进行。境外和海外华人群体每年有纪念活动。不同立场对事件性质、伤亡规模和历史评价存在持续分歧。</p>
+      </div>
+      <div class="card">
+        <h3 data-s="伤亡数字对照" data-t="傷亡數字對照">伤亡数字对照</h3>
+        <ul>
+          <li data-s="官方早期公布：约二百四十一人死亡（含军人、警察），伤者数千。" data-t="官方早期公佈：約二百四十一人死亡（含軍人、警察），傷者數千。">官方早期公布：约二百四十一人死亡（含军人、警察），伤者数千。</li>
+          <li data-s="部分公安内部统计曾提到北京死亡五百余人。" data-t="部分公安內部統計曾提到北京死亡五百餘人。">部分公安内部统计曾提到北京死亡五百余人。</li>
+          <li data-s="境外媒体与独立研究：多数估计在数百至两千余人，也有更高说法。" data-t="境外媒體與獨立研究：多數估計在數百至兩千餘人，也有更高說法。">境外媒体与独立研究：多数估计在数百至两千余人，也有更高说法。</li>
+        </ul>
+        <p data-s="至今没有一份被各方共同认可的完整死难者名单。" data-t="至今沒有一份被各方共同認可的完整死難者名單。">至今没有一份被各方共同认可的完整死难者名单。</p>
+      </div>
+    </div>
+
+    <!-- 事后处理 -->
+    <div id="after" class="section">
+      <h2 data-s="事后处理" data-t="事後處理">事后处理</h2>
+      <div class="card">
+        <h3 data-s="逮捕与审判" data-t="逮捕與審判">逮捕与审判</h3>
+        <p data-s="清场后，当局在北京及全国展开大规模抓捕。北京市方面公布抓捕约一千一百余人。全国范围内被拘留、审查的人数更多，涉及学生、工人、知识分子和普通市民。" data-t="清場後，當局在北京及全國展開大規模抓捕。北京市方面公佈抓捕約一千一百餘人。全國範圍內被拘留、審查的人數更多，涉及學生、工人、知識分子和普通市民。">清场后，当局在北京及全国展开大规模抓捕。北京市方面公布抓捕约一千一百余人。全国范围内被拘留、审查的人数更多，涉及学生、工人、知识分子和普通市民。</p>
+        <p data-s="部分人被以反革命、扰乱社会秩序、抢劫等罪名起诉。北京、上海等地有人被判处死刑并执行，更多人被判有期徒刑或劳动教养。一些被通缉的学生领袖通过香港的“黄雀行动”流亡海外，长期无法回国。陈子明、王军涛等人被认定为幕后组织者，判处较长刑期。" data-t="部分人被以反革命、擾亂社會秩序、搶劫等罪名起訴。北京、上海等地有人被判處死刑並執行，更多人被判有期徒刑或勞動教養。一些被通緝的學生領袖通過香港的「黃雀行動」流亡海外，長期無法回國。陳子明、王軍濤等人被認定為幕後組織者，判處較長刑期。">部分人被以反革命、扰乱社会秩序、抢劫等罪名起诉。北京、上海等地有人被判处死刑并执行，更多人被判有期徒刑或劳动教养。一些被通缉的学生领袖通过香港的“黄雀行动”流亡海外，长期无法回国。陈子明、王军涛等人被认定为幕后组织者，判处较长刑期。</p>
+      </div>
+      <div class="card">
+        <h3 data-s="党内整顿" data-t="黨內整頓">党内整顿</h3>
+        <p data-s="对同情或支持运动的党政干部进行排查和调整。赵紫阳被彻底免职并软禁。大量官员被调职或审查，政治可靠性重新评估。媒体系统也进行清理，部分主持人被调离。" data-t="對同情或支持運動的黨政幹部進行排查和調整。趙紫陽被徹底免職並軟禁。大量官員被調職或審查，政治可靠性重新評估。媒體系統也進行清理，部分主持人被調離。">对同情或支持运动的党政干部进行排查和调整。赵紫阳被彻底免职并软禁。大量官员被调职或审查，政治可靠性重新评估。媒体系统也进行清理，部分主持人被调离。</p>
+      </div>
+      <div class="card">
+        <h3 data-s="对外与后续管控" data-t="對外與後續管控">对外与后续管控</h3>
+        <p data-s="西方多国实施经济制裁和武器禁运。国内加强宣传和舆论控制，相关话题成为长期禁忌。公开讨论、纪念活动在大陆基本被禁止。境外纪念活动持续进行。部分参与者家属成立“天安门母亲”等群体，持续要求公布真相和赔偿，但长期未获官方回应。" data-t="西方多國實施經濟制裁和武器禁運。國內加強宣傳和輿論控制，相關話題成為長期禁忌。公開討論、紀念活動在大陸基本被禁止。境外紀念活動持續進行。部分參與者家屬成立「天安門母親」等群體，持續要求公佈真相和賠償，但長期未獲官方回應。">西方多国实施经济制裁和武器禁运。国内加强宣传和舆论控制，相关话题成为长期禁忌。公开讨论、纪念活动在大陆基本被禁止。境外纪念活动持续进行。部分参与者家属成立“天安门母亲”等群体，持续要求公布真相和赔偿，但长期未获官方回应。</p>
+      </div>
+    </div>
+
+    <!-- 程度评价 -->
+    <div id="eval" class="section">
+      <h2 data-s="客观程度评价" data-t="客觀程度評價">客观程度评价</h2>
+      <div class="card">
+        <h3 data-s="从伤亡规模看" data-t="從傷亡規模看">从伤亡规模看</h3>
+        <p data-s="官方数字与独立估计存在明显差距。即使按官方较低数字，也造成数百人死亡和数千人受伤。若按常见独立估计，死亡在数百至两千余人区间。冲突主要发生在通往广场的街道，而非广场内部大规模集体屠杀，这一点在部分现场当事人叙述中较为一致。伤亡规模在当代中国政治事件中属于较高水平。" data-t="官方數字與獨立估計存在明顯差距。即使按官方較低數字，也造成數百人死亡和數千人受傷。若按常見獨立估計，死亡在數百至兩千餘人區間。衝突主要發生在通往廣場的街道，而非廣場內部大規模集體屠殺，這一點在部分現場當事人敘述中較為一致。傷亡規模在當代中國政治事件中屬於較高水平。">官方数字与独立估计存在明显差距。即使按官方较低数字，也造成数百人死亡和数千人受伤。若按常见独立估计，死亡在数百至两千余人区间。冲突主要发生在通往广场的街道，而非广场内部大规模集体屠杀，这一点在部分现场当事人叙述中较为一致。伤亡规模在当代中国政治事件中属于较高水平。</p>
+      </div>
+      <div class="card">
+        <h3 data-s="从政治影响看" data-t="從政治影響看">从政治影响看</h3>
+        <p data-s="事件直接导致高层人事变动，改革派被边缘化，政治开放进程中断。此后长期加强维稳和对言论的管控。对中国政治走向的影响持续数十年，被多数观察者视为当代中国的重要转折点。" data-t="事件直接導致高層人事變動，改革派被邊緣化，政治開放進程中斷。此後長期加強維穩和對言論的管控。對中國政治走向的影響持續數十年，被多數觀察者視為當代中國的重要轉折點。">事件直接导致高层人事变动，改革派被边缘化，政治开放进程中断。此后长期加强维稳和对言论的管控。对中国政治走向的影响持续数十年，被多数观察者视为当代中国的重要转折点。</p>
+      </div>
+      <div class="card">
+        <h3 data-s="从国际反应看" data-t="從國際反應看">从国际反应看</h3>
+        <p data-s="事件引发广泛国际关注和谴责，多国实施制裁。西方媒体将其视为冷战后期重要事件之一。制裁后来逐步放松，但相关记忆和讨论在境外持续存在。" data-t="事件引發廣泛國際關注和譴責，多國實施制裁。西方媒體將其視為冷戰後期重要事件之一。制裁後來逐步放鬆，但相關記憶和討論在境外持續存在。">事件引发广泛国际关注和谴责，多国实施制裁。西方媒体将其视为冷战后期重要事件之一。制裁后来逐步放松，但相关记忆和讨论在境外持续存在。</p>
+      </div>
+      <div class="card">
+        <h3 data-s="综合判断" data-t="綜合判斷">综合判断</h3>
+        <p data-s="从人员伤亡、政治转折、长期管控和国际影响综合来看，这是一九四九年后中国大陆发生的一次严重政治冲突。不同立场对其性质和必要程度评价差异很大：官方强调维护稳定和秩序的必要性，批评者强调对平民使用武力的代价和对政治发展的长期影响。事实层面的伤亡数字和后续处理方式，是评价其严重程度的主要依据。" data-t="從人員傷亡、政治轉折、長期管控和國際影響綜合來看，這是一九四九年後中國大陸發生的一次嚴重政治衝突。不同立場對其性質和必要程度評價差異很大：官方強調維護穩定和秩序的必要性，批評者強調對平民使用武力的代價和對政治發展的長期影響。事實層面的傷亡數字和後續處理方式，是評價其嚴重程度的主要依據。">从人员伤亡、政治转折、长期管控和国际影响综合来看，这是一九四九年后中国大陆发生的一次严重政治冲突。不同立场对其性质和必要程度评价差异很大：官方强调维护稳定和秩序的必要性，批评者强调对平民使用武力的代价和对政治发展的长期影响。事实层面的伤亡数字和后续处理方式，是评价其严重程度的主要依据。</p>
+      </div>
+    </div>
+
+    <!-- 留言板 -->
+    <div class="board-box">
+      <h2 data-s="留言板" data-t="留言板">留言板</h2>
+      <p data-s="可以在这里留下任何想法，内容保存在本地浏览器，刷新不会丢。" data-t="可以在這裡留下任何想法，內容保存在本地瀏覽器，刷新不會丟。">可以在这里留下任何想法，内容保存在本地浏览器，刷新不会丢。</p>
+      <textarea id="boardInput" class="board-input" placeholder="输入任何内容..."></textarea>
+      <button class="board-btn" onclick="addMessage()" data-s="发布" data-t="發布">发布</button>
+      <div id="boardList" class="board-list"></div>
+    </div>
+
+    <div class="source">
+      <p data-s="主要参考公开资料：中文维基百科相关条目、英文维基百科、BBC与美联社等机构时间线、当事人回忆与官方公布数字。本页仅作事实整理，不代表任何立场。" data-t="主要參考公開資料：中文維基百科相關條目、英文維基百科、BBC與美聯社等機構時間線、當事人回憶與官方公佈數字。本頁僅作事實整理，不代表任何立場。">主要参考公开资料：中文维基百科相关条目、英文维基百科、BBC与美联社等机构时间线、当事人回忆与官方公布数字。本页仅作事实整理，不代表任何立场。</p>
+    </div>
+  </div>
+
+  <div class="audio-bar">
+    <button id="playBtn" onclick="togglePlay()">播放</button>
+    <div class="info">
+      <span data-s="背景：燕无歇 DJ降调版（0.85倍速）" data-t="背景：燕無歇 DJ降調版（0.85倍速）">背景：燕无歇 DJ降调版（0.85倍速）</span>
+    </div>
+    <input type="range" id="vol" min="0" max="1" step="0.05" value="0.4" oninput="setVol(this.value)">
+  </div>
+
+  <audio id="bgm" loop preload="auto">
+    <source src="https://pdftourl.net/audio/1787017422636-3b836bad-322b-4017-a46e-c4d9e90009d1.mp3" type="audio/mpeg">
+  </audio>
+
+<script>
+  let currentLang = 's';
+  const audio = document.getElementById('bgm');
+  const playBtn = document.getElementById('playBtn');
+  let isPlaying = false;
+
+  audio.playbackRate = 1.0;
+  audio.volume = 0.4;
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.textContent.includes(lang === 's' ? '简' : '繁'));
+    });
+    document.querySelectorAll('[data-s]').forEach(el => {
+      if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') return;
+      el.textContent = el.getAttribute('data-' + lang);
+    });
+    playBtn.textContent = isPlaying ? (lang === 's' ? '暂停' : '暫停') : (lang === 's' ? '播放' : '播放');
+    const placeholder = document.getElementById('boardInput');
+    if (placeholder) placeholder.placeholder = lang === 's' ? '输入任何内容...' : '輸入任何內容...';
+  }
+
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(id)) {
+        btn.classList.add('active');
+      }
+    });
+  }
+
+  function togglePlay() {
+    if (isPlaying) {
+      audio.pause();
+      playBtn.textContent = currentLang === 's' ? '播放' : '播放';
+    } else {
+      audio.play().catch(e => {
+        alert(currentLang === 's' ? '播放失败，请检查音频文件是否存在。' : '播放失敗，請檢查音頻文件是否存在。');
+      });
+      playBtn.textContent = currentLang === 's' ? '暂停' : '暫停';
+    }
+    isPlaying = !isPlaying;
+  }
+
+  function setVol(v) {
+    audio.volume = parseFloat(v);
+  }
+
+  // 留言板
+  function loadMessages() {
+    const list = document.getElementById('boardList');
+    const msgs = JSON.parse(localStorage.getItem('liusi_board') || '[]');
+    if (msgs.length === 0) {
+      list.innerHTML = '<div class="board-empty">' + (currentLang === 's' ? '暂时没有留言' : '暫時沒有留言') + '</div>';
+      return;
+    }
+    list.innerHTML = msgs.map(m => `
+      <div class="board-item">
+        <div>${escapeHtml(m.text)}</div>
+        <div class="time">${m.time}</div>
+      </div>
+    `).join('');
+  }
+
+  function addMessage() {
+    const input = document.getElementById('boardInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const msgs = JSON.parse(localStorage.getItem('liusi_board') || '[]');
+    const now = new Date();
+    const timeStr = now.getFullYear() + '-' + 
+      String(now.getMonth()+1).padStart(2,'0') + '-' + 
+      String(now.getDate()).padStart(2,'0') + ' ' + 
+      String(now.getHours()).padStart(2,'0') + ':' + 
+      String(now.getMinutes()).padStart(2,'0');
+    msgs.unshift({ text: text, time: timeStr });
+    if (msgs.length > 100) msgs.pop();
+    localStorage.setItem('liusi_board', JSON.stringify(msgs));
+    input.value = '';
+    loadMessages();
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  loadMessages();
+</script>
+</body>
+</html>
